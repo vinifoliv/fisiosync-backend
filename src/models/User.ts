@@ -12,13 +12,17 @@ export class User {
     async createUser() {
         const prisma = new PrismaClient();
 
-        const result = await prisma.user.create({
+        return await prisma.user.create({
             data: {
                 email: this.email,
                 password: this.password
             }
         });
+    }
 
-        return 
+    static async getUsers() {
+        const prisma = new PrismaClient();
+        
+        return await prisma.user.findMany();
     }
 }
