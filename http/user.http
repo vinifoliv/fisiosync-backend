@@ -4,8 +4,8 @@ Accept: */*
 Content-Type: application/json
 
 {
-    "email": "vini@gmail.com",
-    "password": "1234"
+    "email": "sabrina@gmail.com",
+    "password": "afsdfs"
 }
 
 ###

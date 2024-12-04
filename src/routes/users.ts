@@ -3,6 +3,7 @@ import { User } from '../models/User';
 import bcrypt from 'bcrypt';
 
 const users = express.Router();
+const jwt = require('jsonwebtoken');
 
 users.get('/users', async (req, resp) => {
     try {
@@ -34,7 +35,12 @@ users.post('/create-user', async (req, resp) => {
         const result = await user.createUser();
         if (!result) throw new Error("Server failed internally to create user.");
 
-        resp.sendStatus(201);
+        // Generating token
+        const payload = { id: result.id, password: result.password };
+        const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
+
+        // Response
+        resp.status(201).json({ token });
     }
     catch (error) {
         resp.status(500).send(error);
