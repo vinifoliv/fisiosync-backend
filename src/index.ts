@@ -8,7 +8,11 @@ const PORT = 3000;
 const app = express();
 app.use(express.json());
 app.use(users);
-app.use(cors({origin: '*'}));
+app.use(cors({
+    origin: '*',
+    methods: 'GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS',
+    allowedHeaders: 'Content-Type, Accept, Authorization'
+}));
 
 app.get('/', (req, res) => { res.send("API is running!"); });
 
