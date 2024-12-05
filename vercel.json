@@ -26,8 +26,6 @@
       }
     ],
     "env": {
-      "NODE_ENV": "production",
-      "DATABASE_URL": "mysql://sql5749858:3zqv35iHx9@sql5.freesqldatabase.com:3306/sql5749858",
-      "JWT_SECRET_KEY": "@AmordaMinhavidacomeçacom4"
+      "NODE_ENV": "production"
     }
   }
