@@ -26,8 +26,7 @@ export class User {
   async createUser() {
     try {
       const prisma = new PrismaClient();
-      if (this.musicalGenders.length === 0)
-        throw new Error("Musical genders are required!");
+      if (this.musicalGenders.length === 0) throw new Error("Musical genders are required!");
 
       const user = await prisma.user.create({
         data: {
@@ -39,6 +38,8 @@ export class User {
           },
         },
       });
+
+      console.log(user);
 
       const musicalGenders = this.musicalGenders.map((id) => ({
         userId: user.id,
@@ -68,11 +69,10 @@ export class User {
       const prisma = new PrismaClient();
       return await prisma.user.findUnique({
         where: {
-          id
-        }
+          id,
+        },
       });
-    }
-    catch (error) {
+    } catch (error) {
       throw new Error("Error on Prisma: " + error);
     }
   }

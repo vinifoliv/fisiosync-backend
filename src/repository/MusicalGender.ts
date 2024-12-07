@@ -30,15 +30,13 @@ export class MusicalGender {
 
   static async getMusicalGenderIdsByName(names: Array<string>) {
     try {
-      const prisma = new PrismaClient();
       const genders = await this.getMusicalGenders();
       const ids = [];
       for (const gender of genders) {
         if (names.includes(gender.name)) ids.push(gender.id);
       }
       return ids;
-    }
-    catch (error) {
+    } catch (error) {
       const fError = error as Error;
       throw new Error("Error on Prisma: " + fError.message);
     }

@@ -1,7 +1,8 @@
 import express from "express";
-import { User } from "../repository/User";
 import bcrypt from "bcrypt";
-import type { UserProps } from "../repository/User";
+
+import { ErrorMessage, SendError, SuccessMessage } from "../messages";
+import { User, UserProps } from "../repository/User";
 import { MusicalGender } from "../repository/MusicalGender";
 
 export const users = express.Router();
@@ -10,10 +11,9 @@ const jwt = require("jsonwebtoken");
 users.get("/users", async (req, res) => {
   try {
     const users = await User.getUsers();
-
-    res.status(200).json(users);
-  } catch (error) {
-    res.status(500).send(error);
+    res.status(200).json(new SuccessMessage(users));
+  } catch (error: any) {
+    res.status(500).send(SendError(error));
   }
 });
 
@@ -23,9 +23,9 @@ users.post("/create-user", async (req, res) => {
   try {
     // Validating
     if (!data.name || !data.email || !data.password || !data.musicalGenders || !data.scale)
-      res.status(400).send("The email or the password have not been sent.");
+      res.status(400).send(new ErrorMessage("The email or the password have not been sent."));
 
-    data.musicalGenders = MusicalGender.getMusicalGenderIdsByName(data.musicalGenders);
+    data.musicalGenders = await MusicalGender.getMusicalGenderIdsByName(data.musicalGenders);
 
     const user = new User(data as UserProps);
 
@@ -36,24 +36,37 @@ users.post("/create-user", async (req, res) => {
 
     // Inserting into the database
     const result = await user.createUser();
-    if (!result) throw new Error("Server failed internally to create user.");
+    if (!result) throw new ErrorMessage("Server failed internally to create user.");
 
     // Generating token
     const payload = { id: result.id, password: result.password };
     const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
 
     // Response
-    res.status(201).json({ token });
-  } catch (error) {
-    res.status(500).send(error);
+    res.status(201).json(new SuccessMessage({ token }));
+  } catch (error: any) {
+    res.status(500).send(SendError(error));
   }
 });
 
 users.get("/get-users", async (req, res) => {
   try {
     const result = await User.getUsers();
-    res.status(200).json(result);
-  } catch (error) {
-    res.status(500).send(error);
+    res.status(200).json(new SuccessMessage(result));
+  } catch (error: any) {
+    res.status(500).send(SendError(error));
+  }
+});
+
+users.get("/get-users/:id", async (req, res) => {
+  try {
+    if (!req.params.id) throw new ErrorMessage("The id has not been sent.");
+
+    const user = await User.getUserById(Number(req.params.id));
+    if (!user) res.status(404).send(new ErrorMessage("User not found."));
+
+    res.status(200).json(new SuccessMessage(user));
+  } catch (error: any) {
+    res.status(500).send(SendError(error));
   }
 });
