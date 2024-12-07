@@ -23,10 +23,10 @@ users.post("/create-user", async (req, res) => {
   try {
     // Validating
     if (!data.name || !data.email || !data.password || !data.musicalGenders || !data.scale)
-      res.status(400).send(new ErrorMessage("The email or the password have not been sent."));
+      res.status(400).json(new ErrorMessage("The email or the password have not been sent."));
 
     const existingEmail = await User.getUserByEmail(data.email);
-    if (existingEmail) res.status(400).send(new ErrorMessage("Email already exists."));
+    if (existingEmail) res.status(400).json(new ErrorMessage("Email already exists."));
 
     data.musicalGenders = await MusicalGender.getMusicalGenderIdsByName(data.musicalGenders);
 
@@ -66,7 +66,7 @@ users.get("/get-users/:id", async (req, res) => {
     if (!req.params.id) throw new ErrorMessage("The id has not been sent.");
 
     const user = await User.getUserById(Number(req.params.id));
-    if (!user) res.status(404).send(new ErrorMessage("User not found."));
+    if (!user) res.status(404).json(new ErrorMessage("User not found."));
 
     res.status(200).json(new SuccessMessage(user));
   } catch (error: any) {

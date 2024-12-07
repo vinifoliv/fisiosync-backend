@@ -8,7 +8,7 @@ musicalGenders.post("/create-musical-gender", async (req, res) => {
   const data = req.body as { name: string[] };
 
   try {
-    if (!data.name || !data.name.length) res.status(400).send(new ErrorMessage("The name has not been sent."));
+    if (!data.name || !data.name.length) res.status(400).json(new ErrorMessage("The name has not been sent."));
 
     const newGenders = [];
 
@@ -18,7 +18,7 @@ musicalGenders.post("/create-musical-gender", async (req, res) => {
       if (genders) {
         for (const existingGender of genders) {
           if (existingGender.name === gender.name) {
-            res.status(400).send(new SuccessMessage(`Musical gender '${gender.name}' already exists.`));
+            res.status(400).json(new SuccessMessage(`Musical gender '${gender.name}' already exists.`));
           }
         }
       }
@@ -27,7 +27,7 @@ musicalGenders.post("/create-musical-gender", async (req, res) => {
 
       newGenders.push(result);
     }
-    res.status(201).send(new SuccessMessage(newGenders));
+    res.status(201).json(new SuccessMessage(newGenders));
   } catch (error: any) {
     res.status(500).send(SendError(error));
   }

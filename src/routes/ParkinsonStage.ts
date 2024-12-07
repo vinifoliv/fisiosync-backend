@@ -8,12 +8,12 @@ parkinsonStage.post("/create-parkinson-stage", async (req, res) => {
   const data = req.body as ParkinsonStageProps;
 
   try {
-    if (!data.id || !data.range) res.status(400).send(new ErrorMessage("The id or the range have not been sent."));
+    if (!data.id || !data.range) res.status(400).json(new ErrorMessage("The id or the range have not been sent."));
 
     const stage = new ParkinsonStage(data.id, data.range);
     const result = await stage.createStage();
     if (!result) throw new ErrorMessage("Server failed internally to create Parkinson stage.");
-    res.status(200).send(new SuccessMessage(result));
+    res.status(200).json(new SuccessMessage(result));
   } catch (error: any) {
     res.status(500).send(SendError(error));
   }

@@ -34,4 +34,18 @@ export class ParkinsonStage {
       throw new Error("Error on Prisma: " + error);
     }
   }
+
+  static async getParkinsonStageRangeById(id: number) {
+    try {
+      const prisma = new PrismaClient();
+      const stage = await prisma.parkinsonStage.findUnique({
+        where: {
+          id,
+        },
+      });
+      return stage?.range;
+    } catch (error) {
+      throw new Error("Error on Prisma: " + error);
+    }
+  }
 }

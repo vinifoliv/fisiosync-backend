@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { UserMusicalGender } from "./UserMusicalGender";
 
 export type UserProps = {
   name: string;
@@ -44,7 +45,9 @@ export class User {
         genderId: id,
       }));
 
-      await prisma.userMusicalGender.createMany({ data: musicalGenders });
+      for (const gender of musicalGenders) {
+        await UserMusicalGender.createUserMusicalGender(gender);
+      }
 
       return user;
     } catch (error) {
