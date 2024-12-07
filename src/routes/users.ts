@@ -25,6 +25,9 @@ users.post("/create-user", async (req, res) => {
     if (!data.name || !data.email || !data.password || !data.musicalGenders || !data.scale)
       res.status(400).send(new ErrorMessage("The email or the password have not been sent."));
 
+    const existingEmail = await User.getUserByEmail(data.email);
+    if (existingEmail) res.status(400).send(new ErrorMessage("Email already exists."));
+
     data.musicalGenders = await MusicalGender.getMusicalGenderIdsByName(data.musicalGenders);
 
     const user = new User(data as UserProps);

@@ -39,8 +39,6 @@ export class User {
         },
       });
 
-      console.log(user);
-
       const musicalGenders = this.musicalGenders.map((id) => ({
         userId: user.id,
         genderId: id,
@@ -59,6 +57,19 @@ export class User {
       const prisma = new PrismaClient();
 
       return await prisma.user.findMany();
+    } catch (error) {
+      throw new Error("Error on Prisma: " + error);
+    }
+  }
+
+  static async getUserByEmail(email: string) {
+    try {
+      const prisma = new PrismaClient();
+      return await prisma.user.findUnique({
+        where: {
+          email,
+        },
+      });
     } catch (error) {
       throw new Error("Error on Prisma: " + error);
     }
