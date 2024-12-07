@@ -8,6 +8,6 @@ export const AuthJWT = (req: Request, res: Response, next: NextFunction) => {
     jwt.verify(token, secret_key);
     next();
   } catch (error) {
-    res.status(403).json(new Error("Autenticação bloqueada!"));
+    res.status(403).json(new Error("Access denied"));
   }
 };
