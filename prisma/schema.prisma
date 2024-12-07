@@ -16,7 +16,7 @@ model User {
   password       String
   musicalGenders UserMusicalGender[]
   scaleId        Int
-  scale          ParkinsonScale      @relation(fields: [scaleId], references: [id])
+  scale          ParkinsonStage      @relation(fields: [scaleId], references: [id])
 }
 
 model MusicalGender {
@@ -25,8 +25,8 @@ model MusicalGender {
   users UserMusicalGender[]
 }
 
-model ParkinsonScale {
-  id    Int    @id @default(autoincrement())
+model ParkinsonStage {
+  id    Int    @id
   range Int[] // appropriate BPM interval
   user  User[]
 }
