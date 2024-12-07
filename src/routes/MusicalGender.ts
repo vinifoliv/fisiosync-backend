@@ -14,18 +14,14 @@ musicalGenders.post("/create-musical-gender", async (req, res) => {
     if (genders) {
       for (const existingGender of genders) {
         if (existingGender.name === gender.name) {
-          res
-            .status(400)
-            .send(`Musical gender '${gender.name}' already exists.`);
+          res.status(400).send(`Musical gender '${gender.name}' already exists.`);
         }
       }
     }
     const result = await gender.createMusicalGender();
-    if (!result)
-      throw new Error("Server failed internally to create musical gender.");
+    if (!result) throw new Error("Server failed internally to create musical gender.");
     res.status(201).send();
   } catch (error) {
-    console.log(error);
     res.status(500).send(error);
   }
 });

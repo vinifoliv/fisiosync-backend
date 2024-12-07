@@ -4,7 +4,7 @@ import bcrypt from "bcrypt";
 import type { UserProps } from "../repository/User";
 import { MusicalGender } from "../repository/MusicalGender";
 
-const users = express.Router();
+export const users = express.Router();
 const jwt = require("jsonwebtoken");
 
 users.get("/users", async (req, res) => {
@@ -22,13 +22,7 @@ users.post("/create-user", async (req, res) => {
 
   try {
     // Validating
-    if (
-      !data.name ||
-      !data.email ||
-      !data.password ||
-      !data.musicalGenders ||
-      !data.scale
-    )
+    if (!data.name || !data.email || !data.password || !data.musicalGenders || !data.scale)
       res.status(400).send("The email or the password have not been sent.");
 
     data.musicalGenders = MusicalGender.getMusicalGenderIdsByName(data.musicalGenders);
@@ -55,7 +49,7 @@ users.post("/create-user", async (req, res) => {
   }
 });
 
-users.get('/get-users', async (req, res) => {
+users.get("/get-users", async (req, res) => {
   try {
     const result = await User.getUsers();
     res.status(200).json(result);
@@ -63,5 +57,3 @@ users.get('/get-users', async (req, res) => {
     res.status(500).send(error);
   }
 });
-
-export default users;
