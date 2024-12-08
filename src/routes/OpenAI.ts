@@ -51,15 +51,15 @@ openai.get("/openai/get-music-recommendations-byuser/:userId", async (req, res) 
   }
 });
 
-openai.get("/openai/get-music-bpm/:music", async (req, res) => {
+openai.post("/openai/get-music-bpm", async (req, res) => {
   try {
-    if (!req.params.music) res.status(400).json(new ErrorMessage("The music has not been sent."));
+    if (!req.body?.music) res.status(400).json(new ErrorMessage("The music has not been sent."));
 
     const completion = await openai_api.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
         { role: "system", content: SystemRole.GetMusicBPM },
-        { role: "user", content: req.params.music },
+        { role: "user", content: req.body.music },
       ],
     });
     if (!completion.choices[0].message.content) throw new ErrorMessage("Server failed internally to get music bpm.");
