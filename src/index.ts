@@ -13,6 +13,7 @@ app.use(Routes.users);
 app.use(Routes.musicalGenders);
 app.use(Routes.parkinsonStage);
 app.use(Routes.openai);
+app.use(Routes.gemini);
 app.use(
   cors({
     origin: "*",

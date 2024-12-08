@@ -9,7 +9,7 @@ export const SystemRole_RecommendMusics = () => {
   return `
   You will receive some data regarding a user with parkinson's disease. 
 
-  You will need to provide YouTube music recommendations based on the following user criteria:
+  You will need to provide YouTube music (not playlists) recommendations based on the following user criteria:
 
   Music categories , beats per minute (BPM) between one number and another number and the Hoehn and Yahr scale,
 
@@ -19,7 +19,7 @@ export const SystemRole_RecommendMusics = () => {
           “musics": [
               {
               “title": Title of song - Author',
-              “link_youtube": URL of the song on YouTube',
+              “link_youtube": URL of the song on YouTube (2024)',
               “thumbnail": URL of the video thumbnail',
               “bpm": 'BPM of the song'
               }
@@ -40,22 +40,11 @@ export const UserRole_Recommend = ({ ...props }: recommendMusicProps) => {
   if (!max_results || !musicalGenders || !scale || !range) return "";
 
   return `
-    Please provide ${max_results} YouTube music recommendations based on the following criteria:
+    Please provide ${max_results} YouTube music (not playlists) recommendations based on the following criteria:
 
     Music categories: ${musicalGenders.join(", ")}
     Beats per minute (BPM): Between ${range[0]} and ${range[1]} BPM.
     Hoehn and Yahr Scale: Stage ${scale} Parkinson's disease.
 
-    The answer should only be provided in the JSON format below, without explanations or any other type of text:
-
-    {
-        "musics": [
-            {
-            "title": "Song title - Author",
-            "link_youtube": "URL of the song on YouTube",
-            "thumbnail": "Video thumbnail URL",
-            "bpm": "BPM of the song"
-            }
-        ]
-    }`;
+    The answer should only be provided in the JSON format below, without explanations or any other type of text`;
 };

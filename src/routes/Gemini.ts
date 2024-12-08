@@ -1,5 +1,5 @@
 import express from "express";
-import OpenAI from "openai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 import { User } from "../repository/User";
 import { UserMusicalGender } from "../repository/UserMusicalGender";
@@ -7,12 +7,12 @@ import { ParkinsonStage } from "../repository/ParkinsonStage";
 import { MusicalGender } from "../repository/MusicalGender";
 
 import { ErrorMessage, SendError, SuccessMessage } from "../messages";
-import { SystemRole_RecommendMusics, UserRole_Recommend } from "../config/openai-prompts";
+import { UserRole_Recommend } from "../config/gemini-prompts";
 
-export const openai = express.Router();
-const openai_api = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+export const gemini = express.Router();
+const gemini_api = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "");
 
-openai.get("/openai/get-music-recommendations-byuser/:userId", async (req, res) => {
+gemini.get("/gemini/get-music-recommendations-byuser/:userId", async (req, res) => {
   try {
     if (!req.params.userId || !Number(req.params.userId)) res.status(400).json(new ErrorMessage("The id has not been sent."));
 
@@ -31,21 +31,28 @@ openai.get("/openai/get-music-recommendations-byuser/:userId", async (req, res) 
       genders.push(gender?.name);
     }
 
-    const dataToPrompt = { scale: user?.scaleId ?? 0, musicalGenders: genders, range, max_results: 10 };
+    const dataToPrompt = { scale: user?.scaleId ?? 0, musicalGenders: genders, range, max_results: 20 };
 
-    const completion = await openai_api.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [
-        { role: "system", content: SystemRole_RecommendMusics() },
-        {
-          role: "user",
-          content: UserRole_Recommend({ ...dataToPrompt }),
-        },
-      ],
+    const model = gemini_api.getGenerativeModel({ model: "gemini-1.5-pro" });
+    const chat = model.startChat({
+      //   history: [{ role: "user", parts: [{ text: SystemRole_RecommendMusics() }] }],
+      generationConfig: {
+        maxOutputTokens: 2000,
+      },
     });
-    if (!completion.choices[0].message.content) throw new ErrorMessage("Server failed internally to get music recommendations.");
+    const result = await chat.sendMessage(UserRole_Recommend({ ...dataToPrompt }));
+    const response = await result.response;
+    const text = response.text();
+    if (!text) throw new ErrorMessage("Server failed internally to get music recommendations.");
 
-    res.status(200).json(new SuccessMessage(JSON.parse(completion.choices[0].message.content ?? "")));
+    let musics;
+    try {
+      musics = JSON.parse(text);
+    } catch (error) {
+      musics = JSON.parse(text.split("```").join("").split("json")[1] ?? "");
+    }
+
+    res.status(200).json(new SuccessMessage(musics));
   } catch (error: any) {
     res.status(500).send(SendError(error));
   }
