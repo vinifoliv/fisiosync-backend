@@ -41,4 +41,18 @@ export class MusicalGender {
       throw new Error("Error on Prisma: " + fError.message);
     }
   }
+
+  static async getMusicalGenderById(id: number) {
+    try {
+      const prisma = new PrismaClient();
+      return await prisma.musicalGender.findUnique({
+        where: {
+          id,
+        },
+      });
+    } catch (error) {
+      const fError = error as Error;
+      throw new Error("Error on Prisma: " + fError.message);
+    }
+  }
 }
