@@ -1,50 +1,75 @@
-import express from 'express';
-import { User } from '../models/User';
-import bcrypt from 'bcrypt';
+import express from "express";
+import bcrypt from "bcrypt";
 
-const users = express.Router();
-const jwt = require('jsonwebtoken');
+import { ErrorMessage, SendError, SuccessMessage } from "../messages";
+import { User, UserProps } from "../repository/User";
+import { MusicalGender } from "../repository/MusicalGender";
 
-users.get('/users', async (req, resp) => {
-    try {
-        const users = await User.getUsers();
-        
-        resp.status(200).json(users);
-    }
-    catch (error) {
-        resp.status(500).send(error);
-    }
+export const users = express.Router();
+const jwt = require("jsonwebtoken");
+
+users.get("/users", async (req, res) => {
+  try {
+    const users = await User.getUsers();
+    res.status(200).json(new SuccessMessage(users));
+  } catch (error: any) {
+    res.status(500).send(SendError(error));
+  }
 });
 
-users.post('/create-user', async (req, resp) => {
-    const data = req.body;
+users.post("/create-user", async (req, res) => {
+  const data = req.body;
 
-    try {
-        // Validating
-        if (!data || !data.email || !data.password) 
-            resp.status(400).send('The email or the password have not been sent.');
+  try {
+    // Validating
+    if (!data.name || !data.email || !data.password || !data.musicalGenders || !data.scale)
+      res.status(400).json(new ErrorMessage("The email or the password have not been sent."));
 
-        const user = new User(data.email, data.password);
+    const existingEmail = await User.getUserByEmail(data.email);
+    if (existingEmail) res.status(400).json(new ErrorMessage("Email already exists."));
 
-        // Hashing the password
-        const salt = bcrypt.genSaltSync(10);
-        const hash = bcrypt.hashSync(user.password, salt);
-        user.password = hash;
+    data.musicalGenders = await MusicalGender.getMusicalGenderIdsByName(data.musicalGenders);
 
-        // Inserting into the database
-        const result = await user.createUser();
-        if (!result) throw new Error("Server failed internally to create user.");
+    const user = new User(data as UserProps);
 
-        // Generating token
-        const payload = { id: result.id, password: result.password };
-        const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
+    // Hashing the password
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(user.password, salt);
+    user.password = hash;
 
-        // Response
-        resp.status(201).json({ token });
-    }
-    catch (error) {
-        resp.status(500).send(error);
-    }
+    // Inserting into the database
+    const result = await user.createUser();
+    if (!result) throw new ErrorMessage("Server failed internally to create user.");
+
+    // Generating token
+    const payload = { id: result.id, password: result.password };
+    const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
+
+    // Response
+    res.status(201).json(new SuccessMessage({ token }));
+  } catch (error: any) {
+    res.status(500).send(SendError(error));
+  }
 });
 
-export default users;
+users.get("/get-users", async (req, res) => {
+  try {
+    const result = await User.getUsers();
+    res.status(200).json(new SuccessMessage(result));
+  } catch (error: any) {
+    res.status(500).send(SendError(error));
+  }
+});
+
+users.get("/get-users/:id", async (req, res) => {
+  try {
+    if (!req.params.id) throw new ErrorMessage("The id has not been sent.");
+
+    const user = await User.getUserById(Number(req.params.id));
+    if (!user) res.status(404).json(new ErrorMessage("User not found."));
+
+    res.status(200).json(new SuccessMessage(user));
+  } catch (error: any) {
+    res.status(500).send(SendError(error));
+  }
+});

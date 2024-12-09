@@ -3,12 +3,40 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("POSTGRES_PRISMA_URL")
+  directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
+// Entities
 model User {
-  id Int @id @default(autoincrement())
-  email String @unique
-  password String
+  id             Int                 @id @default(autoincrement())
+  name           String
+  email          String              @unique
+  password       String
+  musicalGenders UserMusicalGender[]
+  scaleId        Int
+  scale          ParkinsonStage      @relation(fields: [scaleId], references: [id])
+}
+
+model MusicalGender {
+  id    Int                 @id @default(autoincrement())
+  name  String              @unique
+  users UserMusicalGender[]
+}
+
+model ParkinsonStage {
+  id    Int    @id
+  range Int[] // appropriate BPM interval
+  user  User[]
+}
+
+// Relations
+model UserMusicalGender {
+  userId   Int
+  user     User          @relation(fields: [userId], references: [id])
+  genderId Int
+  gender   MusicalGender @relation(fields: [genderId], references: [id])
+
+  @@id([userId, genderId])
 }
