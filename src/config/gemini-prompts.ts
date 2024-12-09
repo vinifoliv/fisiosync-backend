@@ -5,11 +5,12 @@ export type recommendMusicProps = {
   max_results: number;
 };
 
-export const UserRole_Recommend = ({ ...props }: recommendMusicProps) => {
-  const { max_results, musicalGenders, scale, range } = props;
-  if (!max_results || !musicalGenders || !scale || !range) return "";
+export const UserRole = {
+  RecommendMusics: ({ ...props }: recommendMusicProps) => {
+    const { max_results, musicalGenders, scale, range } = props;
+    if (!max_results || !musicalGenders || !scale || !range) return "";
 
-  return `
+    return `
       You will receive some data regarding a user with parkinson's disease. 
   
       You will need to provide YouTube music (not playlists) recommendations based on the following user criteria:
@@ -46,4 +47,24 @@ export const UserRole_Recommend = ({ ...props }: recommendMusicProps) => {
       Hoehn and Yahr Scale: Stage ${scale} Parkinson's disease.
   
       The answer should only be provided in the JSON format below, without explanations or any other type of text`;
+  },
+  GetMusicBPM: (music: string) => `
+  I'll send you a song from YouTube. Your task will be to analyze the video, calculate the BPM (Beats Per Minute) of the song, and return only a JSON object as a response. Don't include explanations, comments or any additional text outside the JSON.
+  Expected JSON format:
+
+  {
+    "music": {
+        "title": "Title of song - Author",
+        "bpm": "BPM of the song"
+    }
+  }
+
+  Important rules:
+
+  1. Replace “Song title - Artist” with the exact title and author of the song.
+  2. Replace “BPM of the song” with the numerical value of the calculated BPM.
+  3. Just return the JSON structured exactly as shown.
+
+  The song to be analyzed is: ${music}
+  `,
 };
