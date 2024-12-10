@@ -4,11 +4,12 @@ import bcrypt from "bcrypt";
 import { ErrorMessage, SendError, SuccessMessage } from "../messages";
 import { User, UserProps } from "../repository/User";
 import { MusicalGender } from "../repository/MusicalGender";
+import { AuthJWT } from "../middlewares";
 
 export const users = express.Router();
 const jwt = require("jsonwebtoken");
 
-users.get("/users", async (req, res) => {
+users.get("/users", AuthJWT, async (req, res) => {
   try {
     const users = await User.getUsers();
     res.status(200).json(new SuccessMessage(users));
@@ -52,7 +53,7 @@ users.post("/create-user", async (req, res) => {
   }
 });
 
-users.get("/get-users", async (req, res) => {
+users.get("/get-users", AuthJWT,  async (req, res) => {
   try {
     const result = await User.getUsers();
     res.status(200).json(new SuccessMessage(result));
@@ -61,7 +62,7 @@ users.get("/get-users", async (req, res) => {
   }
 });
 
-users.get("/get-users/:id", async (req, res) => {
+users.get("/get-users/:id", AuthJWT, async (req, res) => {
   try {
     if (!req.params.id) throw new ErrorMessage("The id has not been sent.");
 
