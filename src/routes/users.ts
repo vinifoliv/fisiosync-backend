@@ -5,11 +5,26 @@ import { ErrorMessage, SendError, SuccessMessage } from "../messages";
 import { User, UserProps } from "../repository/User";
 import { MusicalGender } from "../repository/MusicalGender";
 import { UserMusicalGender } from "../repository/UserMusicalGender";
+import { AuthJWT } from "../middlewares";
 
 export const users = express.Router();
 const jwt = require("jsonwebtoken");
 
-users.get("/users", async (req, res) => {
+users.get("/login", async (req, res) => {
+  try {
+    const { email, password }: { email: string; password: string } = req.body;
+    const user = await User.getUserByEmail(email);
+    if (!user) throw new ErrorMessage("User does not exist.");
+    if (!await bcrypt.compare(password, user.password)) throw new ErrorMessage("Password is incorrect.");
+    const payload = { id: user.id, password: password };
+    const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
+    res.status(200).json(new SuccessMessage({ token }));
+  } catch (error: any) {
+    res.status(500).send(SendError(error));
+  }
+});
+
+users.get("/users", AuthJWT, async (req, res) => {
   try {
     const users = await User.getUsers();
     res.status(200).json(new SuccessMessage(users));
@@ -67,7 +82,7 @@ users.post("/create-user", async (req, res) => {
   }
 });
 
-users.get("/get-users", async (req, res) => {
+users.get("/get-users", AuthJWT, async (req, res) => {
   try {
     const result = await User.getUsers();
     res.status(200).json(new SuccessMessage(result));
@@ -76,7 +91,7 @@ users.get("/get-users", async (req, res) => {
   }
 });
 
-users.get("/get-users/:id", async (req, res) => {
+users.get("/get-users/:id", AuthJWT, async (req, res) => {
   try {
     if (!req.params.id) throw new ErrorMessage("The id has not been sent.");
 
@@ -89,9 +104,9 @@ users.get("/get-users/:id", async (req, res) => {
   }
 });
 
-users.put("/update-user", async (req, res) => {
+users.put("/update-user", AuthJWT, async (req, res) => {
   try {
-    const {id, ...user} = req.body;
+    const { id, ...user } = req.body;
 
     // Validating
     if (!user.name || !user.email || !user.password || !user.scale)
@@ -99,15 +114,26 @@ users.put("/update-user", async (req, res) => {
 
     // Updating the user
     const updatedUser = await User.updateUser(id, user);
-    if (!updatedUser) throw new ErrorMessage("Server failed to update user ", user.name);
+    if (!updatedUser)
+      throw new ErrorMessage("Server failed to update user ", user.name);
 
     // Updating user's musical genders
-    const newGendersIds = await MusicalGender.getMusicalGenderIdsByName(user.musicalGenders);
+    const newGendersIds = await MusicalGender.getMusicalGenderIdsByName(
+      user.musicalGenders
+    );
     const dbGendersIds = await UserMusicalGender.getUserMusicalGendersIds(id);
-    const gendersToAdd = newGendersIds.filter((id) => !dbGendersIds.includes(id));
-    const gendersToRemove = dbGendersIds.filter((id) => !newGendersIds.includes(id));
+    const gendersToAdd = newGendersIds.filter(
+      (id) => !dbGendersIds.includes(id)
+    );
+    const gendersToRemove = dbGendersIds.filter(
+      (id) => !newGendersIds.includes(id)
+    );
 
-    await UserMusicalGender.updateUserMusicalGenders(id, gendersToAdd, gendersToRemove);
+    await UserMusicalGender.updateUserMusicalGenders(
+      id,
+      gendersToAdd,
+      gendersToRemove
+    );
 
     res.status(200).json(new SuccessMessage(user));
   } catch (error: any) {

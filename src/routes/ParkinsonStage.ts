@@ -1,10 +1,11 @@
 import express from "express";
 import { ParkinsonStage, ParkinsonStageProps } from "../repository/ParkinsonStage";
 import { ErrorMessage, SendError, SuccessMessage } from "../messages";
+import { AuthJWT } from "../middlewares";
 
 export const parkinsonStage = express.Router();
 
-parkinsonStage.post("/create-parkinson-stage", async (req, res) => {
+parkinsonStage.post("/create-parkinson-stage", AuthJWT, async (req, res) => {
   const data = req.body as ParkinsonStageProps;
 
   try {
@@ -19,7 +20,7 @@ parkinsonStage.post("/create-parkinson-stage", async (req, res) => {
   }
 });
 
-parkinsonStage.get("/get-parkinson-stages", async (req, res) => {
+parkinsonStage.get("/get-parkinson-stages", AuthJWT, async (req, res) => {
   try {
     const result = await ParkinsonStage.getParkinsonStages();
     res.status(200).json(new SuccessMessage(result));
