@@ -8,11 +8,12 @@ import { MusicalGender } from "../repository/MusicalGender";
 
 import { ErrorMessage, SendError, SuccessMessage } from "../messages";
 import { UserRole } from "../config/gemini-prompts";
+import { AuthJWT } from "../middlewares";
 
 export const gemini = express.Router();
 const gemini_api = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "");
 
-gemini.get("/gemini/get-music-recommendations-byuser/:userId", async (req, res) => {
+gemini.get("/gemini/get-music-recommendations-byuser/:userId", AuthJWT, async (req, res) => {
   try {
     if (!req.params.userId || !Number(req.params.userId)) res.status(400).json(new ErrorMessage("The id has not been sent."));
 

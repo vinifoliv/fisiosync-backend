@@ -1,10 +1,11 @@
 import express from "express";
 import { MusicalGender } from "../repository/MusicalGender";
 import { ErrorMessage, SendError, SuccessMessage } from "../messages";
+import { AuthJWT } from "../middlewares";
 
 export const musicalGenders = express.Router();
 
-musicalGenders.post("/create-musical-gender", async (req, res) => {
+musicalGenders.post("/create-musical-gender", AuthJWT, async (req, res) => {
   const data = req.body as { name: string[] };
 
   try {
