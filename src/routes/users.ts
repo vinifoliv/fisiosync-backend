@@ -4,6 +4,7 @@ import bcrypt from "bcrypt";
 import { ErrorMessage, SendError, SuccessMessage } from "../messages";
 import { User, UserProps } from "../repository/User";
 import { MusicalGender } from "../repository/MusicalGender";
+import { AuthJWT } from "../middlewares";
 
 export const users = express.Router();
 const jwt = require("jsonwebtoken");
