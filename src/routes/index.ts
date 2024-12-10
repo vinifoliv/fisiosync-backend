@@ -1,5 +1,5 @@
-export { auth } from "./Auth";
-export { users } from "./Users";
+export { auth } from "./auth";
+export { users } from "./users";
 export { parkinsonStage } from "./ParkinsonStage";
 export { musicalGenders } from "./MusicalGender";
 export { openai } from "./OpenAI";

@@ -27,7 +27,8 @@ export class User {
   async createUser() {
     try {
       const prisma = new PrismaClient();
-      if (this.musicalGenders.length === 0) throw new Error("Musical genders are required!");
+      if (this.musicalGenders.length === 0)
+        throw new Error("Musical genders are required!");
 
       const user = await prisma.user.create({
         data: {
@@ -84,6 +85,27 @@ export class User {
       return await prisma.user.findUnique({
         where: {
           id,
+        },
+      });
+    } catch (error) {
+      throw new Error("Error on Prisma: " + error);
+    }
+  }
+
+  static async updateUser(id: number, user: UserProps) {
+    try {
+      const prisma = new PrismaClient();
+      return await prisma.user.update({
+        where: {
+          id,
+        },
+        data: {
+          name: user.name,
+          email: user.email,
+          password: user.password,
+          scale: {
+            connect: { id: user.scale },
+          },
         },
       });
     } catch (error) {
