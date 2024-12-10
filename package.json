@@ -3,8 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
+    "postinstall": "prisma generate",
     "build": "tsc",
-    "start": "npx prisma generate && npx prisma db push && node dist/src/index.js",
+    "start": "node dist/src/index.js",
     "dev": "ts-node-dev --ignore-watch node_modules src/index.ts"
   },
   "author": "",
