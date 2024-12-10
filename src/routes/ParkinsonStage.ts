@@ -4,7 +4,7 @@ import { ErrorMessage, SendError, SuccessMessage } from "../messages";
 
 export const parkinsonStage = express.Router();
 const jwt = require("jsonwebtoken")
-parkinsonStage.post("/create-parkinson-stage", jwt, async (req, res) => {
+parkinsonStage.post("/create-parkinson-stage", async (req, res) => {
   const data = req.body as ParkinsonStageProps;
 
   try {
