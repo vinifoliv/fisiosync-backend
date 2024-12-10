@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/src/index.js",
+    "start": "npx prisma generate && npx prisma db push && node dist/src/index.js",
     "dev": "ts-node-dev --ignore-watch node_modules src/index.ts"
   },
   "author": "",
