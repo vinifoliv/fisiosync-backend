@@ -1,10 +1,14 @@
 import express from "express";
 import cors from "cors";
 import * as Routes from "./routes/";
+import * as bodyParser from "body-parser";
 
 require("dotenv").config({ override: true });
 
 const PORT = process.env.PORT || 3000;
+
+app.use(bodyParser.urlencoded({ limit: "50mb", extended: true, parameterLimit: 50000 }));
+app.use(bodyParser.json({ limit: "50mb" }));
 
 const app = express();
 app.use(express.json());
