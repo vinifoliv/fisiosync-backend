@@ -8,15 +8,14 @@ datasource db {
   directUrl = env("POSTGRES_URL_NON_POOLING")
 }
 
-// Entities
 model User {
   id             Int                 @id @default(autoincrement())
-  name           String
   email          String              @unique
   password       String
-  musicalGenders UserMusicalGender[]
+  name           String
   scaleId        Int
   scale          ParkinsonStage      @relation(fields: [scaleId], references: [id])
+  musicalGenders UserMusicalGender[]
 }
 
 model MusicalGender {
@@ -27,16 +26,15 @@ model MusicalGender {
 
 model ParkinsonStage {
   id    Int    @id
-  range Int[] // appropriate BPM interval
+  range Int[]
   user  User[]
 }
 
-// Relations
 model UserMusicalGender {
   userId   Int
-  user     User          @relation(fields: [userId], references: [id])
   genderId Int
   gender   MusicalGender @relation(fields: [genderId], references: [id])
+  user     User          @relation(fields: [userId], references: [id])
 
   @@id([userId, genderId])
 }
