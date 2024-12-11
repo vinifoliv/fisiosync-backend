@@ -10,7 +10,7 @@ import { AuthJWT } from "../middlewares";
 export const users = express.Router();
 const jwt = require("jsonwebtoken");
 
-users.get("/login", async (req, res) => {
+users.post("/login", async (req, res) => {
   try {
     const { email, password }: { email: string; password: string } = req.body;
     const user = await User.getUserByEmail(email);
