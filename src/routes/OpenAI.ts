@@ -13,7 +13,7 @@ import { AuthJWT } from "../middlewares";
 export const openai = express.Router();
 const openai_api = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
-openai.get("/openai/get-music-recommendations-byuser/:userId", AuthJWT, async (req, res) => {
+openai.get("/openai/get-music-recommendations-byuser/:userId", async (req, res) => {
   try {
     if (!req.params.userId || !Number(req.params.userId)) res.status(400).json(new ErrorMessage("The id has not been sent."));
 
