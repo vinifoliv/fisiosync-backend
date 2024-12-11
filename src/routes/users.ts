@@ -15,9 +15,9 @@ users.post("/login", async (req, res) => {
     const { email, password }: { email: string; password: string } = req.body;
     const user = await User.getUserByEmail(email);
     if (!user) throw new ErrorMessage("User does not exist.");
-    if (!await bcrypt.compare(password, user.password)) throw new ErrorMessage("Password is incorrect.");
+    if (!(await bcrypt.compare(password, user.password))) throw new ErrorMessage("Password is incorrect.");
     const payload = { id: user.id, password: password };
-    const token = jwt.sign(payload, process.env.JWT_SECRET_KEY);
+    const token = jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: "48hr" });
     res.status(200).json(new SuccessMessage({ token }));
   } catch (error: any) {
     res.status(500).send(SendError(error));
@@ -38,26 +38,13 @@ users.post("/create-user", async (req, res) => {
 
   try {
     // Validating
-    if (
-      !data.name ||
-      !data.email ||
-      !data.password ||
-      !data.musicalGenders ||
-      !data.scale
-    )
-      res
-        .status(400)
-        .json(
-          new ErrorMessage("The email or the password have not been sent.")
-        );
+    if (!data.name || !data.email || !data.password || !data.musicalGenders || !data.scale)
+      res.status(400).json(new ErrorMessage("The email or the password have not been sent."));
 
     const existingEmail = await User.getUserByEmail(data.email);
-    if (existingEmail)
-      res.status(400).json(new ErrorMessage("Email already exists."));
+    if (existingEmail) res.status(400).json(new ErrorMessage("Email already exists."));
 
-    data.musicalGenders = await MusicalGender.getMusicalGenderIdsByName(
-      data.musicalGenders
-    );
+    data.musicalGenders = await MusicalGender.getMusicalGenderIdsByName(data.musicalGenders);
 
     const user = new User(data as UserProps);
 
@@ -68,8 +55,7 @@ users.post("/create-user", async (req, res) => {
 
     // Inserting into the database
     const result = await user.createUser();
-    if (!result)
-      throw new ErrorMessage("Server failed internally to create user.");
+    if (!result) throw new ErrorMessage("Server failed internally to create user.");
 
     // Generating token
     const payload = { id: result.id, password: result.password };
@@ -109,31 +95,19 @@ users.put("/update-user", AuthJWT, async (req, res) => {
     const { id, ...user } = req.body;
 
     // Validating
-    if (!user.name || !user.email || !user.password || !user.scale)
-      throw new ErrorMessage("Not all the fields have been sent.");
+    if (!user.name || !user.email || !user.password || !user.scale) throw new ErrorMessage("Not all the fields have been sent.");
 
     // Updating the user
     const updatedUser = await User.updateUser(id, user);
-    if (!updatedUser)
-      throw new ErrorMessage("Server failed to update user ", user.name);
+    if (!updatedUser) throw new ErrorMessage("Server failed to update user ", user.name);
 
     // Updating user's musical genders
-    const newGendersIds = await MusicalGender.getMusicalGenderIdsByName(
-      user.musicalGenders
-    );
+    const newGendersIds = await MusicalGender.getMusicalGenderIdsByName(user.musicalGenders);
     const dbGendersIds = await UserMusicalGender.getUserMusicalGendersIds(id);
-    const gendersToAdd = newGendersIds.filter(
-      (id) => !dbGendersIds.includes(id)
-    );
-    const gendersToRemove = dbGendersIds.filter(
-      (id) => !newGendersIds.includes(id)
-    );
+    const gendersToAdd = newGendersIds.filter((id) => !dbGendersIds.includes(id));
+    const gendersToRemove = dbGendersIds.filter((id) => !newGendersIds.includes(id));
 
-    await UserMusicalGender.updateUserMusicalGenders(
-      id,
-      gendersToAdd,
-      gendersToRemove
-    );
+    await UserMusicalGender.updateUserMusicalGenders(id, gendersToAdd, gendersToRemove);
 
     res.status(200).json(new SuccessMessage(user));
   } catch (error: any) {
