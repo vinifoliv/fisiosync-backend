@@ -32,7 +32,7 @@ openai.get("/openai/get-music-recommendations-byuser/:userId", async (req, res) 
       genders.push(gender?.name);
     }
 
-    const dataToPrompt = { scale: user?.scaleId ?? 0, musicalGenders: genders, range, max_results: 10 };
+    const dataToPrompt = { scale: user?.scaleId ?? 0, musicalGenders: genders, range, max_results: 20 };
 
     const completion = await openai_api.chat.completions.create({
       model: "gpt-4o-mini",
